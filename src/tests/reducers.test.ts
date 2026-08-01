@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import StateKit from '../';
 import type { Action } from '../types/types';
 
@@ -43,5 +43,30 @@ describe('StateKit - reducers', () => {
     stateKit.addReducer(incrementReducer);
     await stateKit.dispatch({ type: 'INCREMENT' });
     expect(stateKit.getState().count).toBe(3);
+  });
+
+  it('should continue dispatching after reducer throws', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const failingReducer = (_state: State, _action: Action): State => {
+      throw new Error('Reducer failed');
+    };
+
+    try {
+      const stateKit = new StateKit<State, Action>({ count: 0 });
+
+      stateKit.addReducer(failingReducer);
+      await stateKit.dispatch({ type: 'INCREMENT' });
+
+      stateKit.removeReducer(failingReducer);
+      stateKit.addReducer(incrementReducer);
+      await stateKit.dispatch({ type: 'INCREMENT' });
+
+      expect(stateKit.getState().count).toBe(1);
+      expect(consoleError).toHaveBeenCalledOnce();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

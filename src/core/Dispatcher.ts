@@ -38,8 +38,9 @@ export default class Dispatcher<State, A extends Action = Action> {
   }
 
   public dispatch(action: A): Promise<void> {
-    this.queue = this.queue.then(() => this.runMiddlewares(action));
-    return this.queue;
+    const dispatchTask = this.queue.then(() => this.runMiddlewares(action));
+    this.queue = dispatchTask.catch(() => undefined);
+    return dispatchTask;
   }
 
   private async runMiddlewares(action: A): Promise<void> {
