@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import StateApi, { type Middleware } from '../';
+import StateKit, { type Middleware } from '../';
 import type { Action } from '../types/types';
 
 type State = { count: number };
@@ -9,8 +9,10 @@ function incrementReducer(state: State, action: Action): State {
   return state;
 }
 
-// Middleware вынесены в отдельные функции
-const middlewareModify: Middleware<State, Action> = async ({ action, next }) => {
+const middlewareModify: Middleware<State, Action> = async ({
+  action,
+  next,
+}) => {
   let nextAction = action;
   if (action.type === 'INCREMENT') nextAction = { type: 'UNKNOWN' };
   await next(nextAction);
@@ -18,34 +20,36 @@ const middlewareModify: Middleware<State, Action> = async ({ action, next }) => 
 
 const middlewareEmpty: Middleware<State, Action> = async () => {};
 
-describe('StateApi - middleware', () => {
+describe('StateKit - middleware', () => {
   it('should call middleware on dispatch', async () => {
-    const stateApi = new StateApi<State, Action>({ count: 0 });
-    const middlewareFunction = vi.fn(async ({ next, action }) => await next(action));
-    stateApi.addMiddleware(middlewareFunction);
-    stateApi.addReducer(incrementReducer);
-    await stateApi.dispatch({ type: 'INCREMENT' });
+    const stateKit = new StateKit<State, Action>({ count: 0 });
+    const middlewareFunction = vi.fn(
+      async ({ next, action }) => await next(action),
+    );
+    stateKit.addMiddleware(middlewareFunction);
+    stateKit.addReducer(incrementReducer);
+    await stateKit.dispatch({ type: 'INCREMENT' });
     expect(middlewareFunction).toHaveBeenCalled();
   });
 
   it('should allow middleware to modify action', async () => {
-    const stateApi = new StateApi<State, Action>({ count: 0 });
-    stateApi.addMiddleware(middlewareModify);
-    stateApi.addReducer(incrementReducer);
-    await stateApi.dispatch({ type: 'INCREMENT' });
-    expect(stateApi.getState().count).toBe(0);
+    const stateKit = new StateKit<State, Action>({ count: 0 });
+    stateKit.addMiddleware(middlewareModify);
+    stateKit.addReducer(incrementReducer);
+    await stateKit.dispatch({ type: 'INCREMENT' });
+    expect(stateKit.getState().count).toBe(0);
   });
 
   it('should stop pipeline if middleware does not call next', async () => {
-    const stateApi = new StateApi<State, Action>({ count: 0 });
-    stateApi.addMiddleware(middlewareEmpty);
-    stateApi.addReducer(incrementReducer);
-    await stateApi.dispatch({ type: 'INCREMENT' });
-    expect(stateApi.getState().count).toBe(0);
+    const stateKit = new StateKit<State, Action>({ count: 0 });
+    stateKit.addMiddleware(middlewareEmpty);
+    stateKit.addReducer(incrementReducer);
+    await stateKit.dispatch({ type: 'INCREMENT' });
+    expect(stateKit.getState().count).toBe(0);
   });
 });
 
-describe('StateApi - middleware', () => {
+describe('StateKit - middleware', () => {
   it('should execute middleware in correct order', async () => {
     const calls: string[] = [];
     const mw1: Middleware<State, Action> = async ({ next }) => {
@@ -58,10 +62,15 @@ describe('StateApi - middleware', () => {
       await next({ type: 'INCREMENT' });
       calls.push('mw2-after');
     };
-    const stateApi = new StateApi<State, Action>({ count: 0 });
-    stateApi.addMiddleware(mw1, mw2);
-    stateApi.addReducer(incrementReducer);
-    await stateApi.dispatch({ type: 'INCREMENT' });
-    expect(calls).toEqual(['mw1-before', 'mw2-before', 'mw2-after', 'mw1-after']);
+    const stateKit = new StateKit<State, Action>({ count: 0 });
+    stateKit.addMiddleware(mw1, mw2);
+    stateKit.addReducer(incrementReducer);
+    await stateKit.dispatch({ type: 'INCREMENT' });
+    expect(calls).toEqual([
+      'mw1-before',
+      'mw2-before',
+      'mw2-after',
+      'mw1-after',
+    ]);
   });
 });

@@ -2,7 +2,7 @@ import Store from './core/Store';
 import Dispatcher from './core/Dispatcher';
 import type { Reducer, Action, Afterware, Middleware } from './types/types';
 
-export default class StateApi<State, A extends Action = Action> {
+export class StateKit<State, A extends Action = Action> {
   private store: Store<State, A>;
   private dispatcher: Dispatcher<State, A>;
 
@@ -37,7 +37,7 @@ export default class StateApi<State, A extends Action = Action> {
 
   public dispatch(action: A): Promise<void> {
     return this.dispatcher.dispatch(action).catch((error) => {
-      console.error('[StateApi dispatch error]:', error);
+      console.error('[StateKit dispatch error]:', error);
     });
   }
 
@@ -51,3 +51,5 @@ export default class StateApi<State, A extends Action = Action> {
 }
 
 export type { Reducer, Action, Afterware, Middleware } from './types/types';
+
+export default StateKit;

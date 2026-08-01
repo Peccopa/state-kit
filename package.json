@@ -1,7 +1,7 @@
 {
   "name": "@peccopa/state-kit",
   "version": "0.1.0",
-  "description": "A lightweight TypeScript component library for building UI components.",
+  "description": "A lightweight TypeScript state management library with middleware and reducers.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

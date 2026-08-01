@@ -45,7 +45,7 @@ state.page = 'welcome' ❌
 Можно только так:
 
 ```ts
-stateApi.dispatch({ type: 'GO_TO_WELCOME_PAGE' });
+stateKit.dispatch({ type: 'GO_TO_WELCOME_PAGE' });
 ```
 
 После этого запускается строгая цепочка:
@@ -75,7 +75,7 @@ afterware (побочные эффекты)
 Вы отправляете действие:
 
 ```ts
-await stateApi.dispatch({
+await stateKit.dispatch({
   type: 'FETCH_USER',
   payload: { id: 1 },
 });
@@ -107,7 +107,7 @@ Middleware — это функции, которые выполняются до
 Пример:
 
 ```ts
-stateApi.addMiddleware(async ({ action, next }) => {
+stateKit.addMiddleware(async ({ action, next }) => {
   if (action.type === 'FETCH_USER') {
     const data = await fetch('/api/user').then((r) => r.json());
     action.payload = { user: data };
@@ -180,7 +180,7 @@ Store:
 Подписки вызываются автоматически:
 
 ```ts
-stateApi.subscribe((state, action) => {
+stateKit.subscribe((state, action) => {
   document.getElementById('page').textContent = state.page;
 });
 ```
@@ -206,7 +206,7 @@ Afterware запускается после того, как состояние 
 Пример:
 
 ```ts
-stateApi.addAfterware(async ({ nextState }) => {
+stateKit.addAfterware(async ({ nextState }) => {
   localStorage.setItem('appState', JSON.stringify(nextState));
 });
 ```
@@ -222,7 +222,10 @@ Afterware НЕ может менять state.
 # Типизация
 
 ```ts
-export interface Action<Type extends string = string, P = Record<string, unknown>> {
+export interface Action<
+  Type extends string = string,
+  P = Record<string, unknown>,
+> {
   type: Type;
   payload?: P;
 }
@@ -236,7 +239,7 @@ type AppState = {
   user?: { id: number; name: string };
 };
 
-const stateApi = new StateApi<AppState>({ page: 'home' });
+const stateKit = new StateKit<AppState>({ page: 'home' });
 ```
 
 ---

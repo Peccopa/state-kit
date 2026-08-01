@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import StateApi from '../';
+import StateKit from '../';
 import type { Action } from '../types/types';
 
 type State = { count: number };
@@ -17,23 +17,26 @@ type Afterware<State, Action> = (parameters: {
 
 let log: string[] = [];
 
-const afterwareLog: Afterware<State, Action> = async ({ nextState, action }) => {
+const afterwareLog: Afterware<State, Action> = async ({
+  nextState,
+  action,
+}) => {
   log.push(`after-${action.type}-${nextState.count}`);
 };
 
 const afterwareNoop: Afterware<State, Action> = async () => {};
 
-describe('StateApi - afterware', () => {
+describe('StateKit - afterware', () => {
   beforeEach(() => {
     log = [];
   });
 
   it('should call afterware after reducers have run', async () => {
-    const stateApi = new StateApi<State, Action>({ count: 1 });
-    stateApi.addReducer(incrementReducer);
-    stateApi.addAfterware(afterwareLog);
+    const stateKit = new StateKit<State, Action>({ count: 1 });
+    stateKit.addReducer(incrementReducer);
+    stateKit.addAfterware(afterwareLog);
 
-    await stateApi.dispatch({ type: 'INCREMENT' });
+    await stateKit.dispatch({ type: 'INCREMENT' });
     expect(log).toEqual(['after-INCREMENT-2']);
   });
 
@@ -46,19 +49,19 @@ describe('StateApi - afterware', () => {
       calls.push(`aw2-${nextState.count}`);
     };
 
-    const stateApi = new StateApi<State, Action>({ count: 1 });
-    stateApi.addReducer(incrementReducer);
-    stateApi.addAfterware(aw1, aw2);
+    const stateKit = new StateKit<State, Action>({ count: 1 });
+    stateKit.addReducer(incrementReducer);
+    stateKit.addAfterware(aw1, aw2);
 
-    await stateApi.dispatch({ type: 'INCREMENT' });
+    await stateKit.dispatch({ type: 'INCREMENT' });
     expect(calls).toEqual(['aw1-2', 'aw2-2']);
   });
 
   it('should still work if afterware does nothing', async () => {
-    const stateApi = new StateApi<State, Action>({ count: 0 });
-    stateApi.addReducer(incrementReducer);
-    stateApi.addAfterware(afterwareNoop);
-    await stateApi.dispatch({ type: 'INCREMENT' });
-    expect(stateApi.getState().count).toBe(1);
+    const stateKit = new StateKit<State, Action>({ count: 0 });
+    stateKit.addReducer(incrementReducer);
+    stateKit.addAfterware(afterwareNoop);
+    await stateKit.dispatch({ type: 'INCREMENT' });
+    expect(stateKit.getState().count).toBe(1);
   });
 });
