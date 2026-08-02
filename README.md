@@ -4,9 +4,26 @@
   <img src="./state-kit.webp" width="800" alt="Component Kit cover" />
 </p>
 
-State Kit — это система управления состоянием приложения.
+**State Kit** — система управления состоянием приложения.
 
-Если объяснить совсем просто:
+---
+
+## Installation
+
+```bash
+# npm
+npm install @peccopa/state-kit
+
+# pnpm
+pnpm add @peccopa/state-kit
+
+# yarn
+yarn add @peccopa/state-kit
+```
+
+---
+
+Если совсем просто:
 
 - В приложении есть **состояние (state)** — объект с данными.
 - Есть **действия (actions)** — события, которые что-то хотят изменить.
