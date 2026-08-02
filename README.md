@@ -1,4 +1,8 @@
-# State Kit
+<!-- # State Kit -->
+
+<p align="center">
+  <img src="./state-kit.webp" width="800" alt="Component Kit cover" />
+</p>
 
 State Kit — это система управления состоянием приложения.
 
